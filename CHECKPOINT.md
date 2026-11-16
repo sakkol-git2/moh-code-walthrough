@@ -1,3 +1,10 @@
+## Latest increment — short checklist and discoverable service navigation
+- Replaced the two generated long review documents with REVIEW-CHECKLIST.md, a single short beginner checklist, eight timed review tasks, one four-action routine and one-line notes template. 15 hours work plus 3 hours breaks retained.
+- Added persistent Service explorer top-bar link and first Explore lessons menu item. Active state updates for both links on service routes and clears on other pages. Mobile header wraps to keep link visible.
+- The prior 8764 preview was tied to the old folder. Started local server from moved workspace on port 8765. Current review URL http://127.0.0.1:8765/#services/DR06.
+- Chrome verified desktop/390px shortcut visibility, top-bar/menu routing, selected state, menu closure, reload and page width. Screenshot /tmp/moh-service-navigation.png inspected.
+- Site remains local. Backend source and runtime unchanged.
+
 ## Latest increment — clickable field tracing completed
 - Added inspector-traces.js. Click row field labels or choose Origin, B attachments, source product ID, Application ID, registration ID, licence ID, actual profile ID or selected prerequisite ID. Four-stage trace links request identity, Java mapping/save, Kafka association and Profile row.
 - Stage controls open linked Java evidence, current request/Kafka panel or relevant Profile table. Table selection, inspector field outlines, ER related-table accents, Java token-line highlights and path-aware B JSON highlights synchronize. Trace persists per family/operation/scenario across checkpoints; clear restores table-oriented view.
