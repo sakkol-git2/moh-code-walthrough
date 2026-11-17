@@ -358,3 +358,11 @@ Keep changes confined to this learning project. Documentation stays local and ou
 - Save/submit failures do not manufacture approval messages. Profile approval is an independently injected hypothetical envelope; unsupported-code catch returns before domain processing. Submit explicitly assumes a pre-existing operation draft and does not claim a commit of pre-lookup in-memory changes.
 - Added 15 exact pinned Java excerpts from Application 3bd064ea/f89d2061 and Profile c4dacbe/a9caf9a. No live API/Kafka/database behavior was executed.
 - Browser verification: 60 service/flow terminal views, 20 explorer entries, flow selector, clickable failure checkpoint, expanded Java source and 390px layout (no document overflow).
+
+
+## 2026-11-17 — One subservice lesson for checkpoints and documents
+
+- Merged all audited subservice document chapters and interactive exercises into their core-flow lesson. Each checkpoint automatically selects related business documentation; a same-page topic selector exposes every original chapter. Proposal values remain in page memory and comparison chapters refresh when selected.
+- Each selected Service explorer detail now places a single “Start lesson · checkpoints + documents” button directly below its title. Removed the competing lifecycle shortcut above the filters. Old subservice document URLs open the combined lesson.
+- Related lifecycle/comparison views are optional; previous/next controls also appear after the reading content. Java evidence remains in a separate full-width block.
+- Verified 280 checkpoint/document combinations, all 20 explorer entries, editable proposals across checkpoint navigation, shared renewal/cancellation exercises and responsive layout. Existing source coverage and missing-strategy limits are retained.
