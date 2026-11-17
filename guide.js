@@ -65,6 +65,22 @@ function lesson(i){
   '<div class="lessonbody"><article class="panel"><div class="tag">Step '+(i+1)+' of 6 · '+label+'</div><h2>'+title+'</h2><p>'+description+'</p><div class="stepcontent">'+example(i)+'</div></article><aside class="side"><div class="tag">Source reader</div><h2>Inspect the code</h2><p>Expand a file to see the original lines, repository path and commit.</p>'+sources(keys)+'</aside></div><div class="actions"><a class="btn light" href="'+(i?'#lesson/'+(i-1):'#overview')+'">← '+(i?'Previous':'Overview')+'</a><a class="btn" href="'+(i===5?'#journey/0':'#lesson/'+(i+1))+'">'+(i===5?'Continue · Submit':'Next · '+steps[i+1][0])+' →</a></div>';
 }
 function render(){
+  const studyRoute=!location.hash||/^#(?:study|study-lab|deep|reference-db|architecture)(?:\/|$)/.test(location.hash);
+  const notice=document.querySelector('.implementation-notice');
+  if(notice)notice.hidden=studyRoute;
+  document.querySelectorAll('header a[aria-current]').forEach(a=>a.removeAttribute('aria-current'));
+  if(!location.hash){studyHome('DR06');return;}
+  const architecture=/^#architecture\/(DR(?:01|06|07|08|09)(?:\.[0-9]{2})?)$/.exec(location.hash);
+  if(architecture&&(drServiceCatalog.some(s=>s.code===architecture[1])||['DR07','DR01'].includes(architecture[1]))){studyArchitecture(architecture[1]);return;}
+  const study=/^#study(?:\/(DR(?:06|08|09)(?:\.[0-9]{2})?))?$/.exec(location.hash);
+  if(study){studyHome(study[1]||'DR06');return;}
+  const lab=/^#study-lab\/(DR(?:06|08|09)(?:\.[0-9]{2})?)$/.exec(location.hash);
+  if(lab&&drServiceCatalog.some(s=>s.code===lab[1])){studyLab(lab[1]);return;}
+  const deep=/^#deep\/(DR(?:01|06|07|08|09)(?:\.[0-9]{2})?)\/(save|submit|approve)\/([0-9]{1,3})$/.exec(location.hash);
+  if(deep&&(drServiceCatalog.some(s=>s.code===deep[1])||['DR07','DR01'].includes(deep[1]))){deepStudy(deep[1],deep[2],Number(deep[3]));return;}
+  const referenceDb=/^#reference-db\/(DR07|DR01)$/.exec(location.hash);
+  if(referenceDb){referenceDatabase(referenceDb[1]);return;}
+
   const failureRoute=/^#flow-failure\/(save|submit|approve)\/([a-zA-Z]+)\/([0-2])$/.exec(location.hash);
   const validFailure=failureRoute && Object.hasOwn(flowFailureCases[failureRoute[1]],failureRoute[2]);
   const bRoute=/^#b-lesson\/(journey|compare|payment|message|practice)\/([0-8])$/.exec(location.hash);
@@ -108,13 +124,13 @@ function render(){
   const contract=location.hash==="#contract-lab";
   const gap=location.hash==="#profile-gap";
   const read=location.hash==="#profile-read";
-  const coreSource=/^#core-source\/([a-zA-Z]+)$/.exec(location.hash);
+  const coreSource=/^#core-source\/([a-zA-Z0-9]+)$/.exec(location.hash);
   const coreSources=location.hash==="#core-sources" || (coreSource && evidence[coreSource[1]]);
   const i=stepNumber();
   const result=/^#certificate-result\/([0-4])$/.exec(location.hash);
   const java=/^#java-route\/([0-6])$/.exec(location.hash);
   const order=location.hash==="#message-order";
-  const source=/^#source\/([a-zA-Z]+)$/.exec(location.hash);
+  const source=/^#source\/([a-zA-Z0-9]+)$/.exec(location.hash);
   const sourcePage=location.hash==="#sources" || (source && evidence[source[1]]);
   const work=/^#workbench\/([0-9]|1[01])$/.exec(location.hash);
   const learn=location.hash==="#learn";

@@ -1,5 +1,6 @@
 function coreHome(){
   const lessons=[
+    ["Start here · your study desk","Choose one service, follow eight study topics and keep your review notes in one place.","#study/DR06"],
     ["Product B lifecycle map","Connect registration, renewal, changes, FSC and cancellation across all three families.","#lifecycle/DR06/DR06/0"],
     ["DR08 dosage form and appearance change","Inspect DR07 dosage provenance, proposed values, surviving rows and unresolved appearance scope.","#dr08-change/dosage/0"],
     ["DR08 holder and manufacturer changes","Compare name/address proposals, DR07 provenance and rows surviving unsupported-code handling.","#dr08-party/holder/0"],

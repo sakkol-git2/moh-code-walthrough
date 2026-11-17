@@ -294,6 +294,7 @@ function coreFlow(key,index){
   const journeyIndex=productBStops.findIndex(stop=>stop[1]===key && stop[2]===index);
   if(journeyIndex>=0) main.insertAdjacentHTML('afterbegin','<p><a href="#b-lesson/journey/'+journeyIndex+'">← Return to Product B at this checkpoint</a></p>');
   attachFlowSequence(key,index);
+  mountMethodInspector(main.querySelector('.implementation-panel'),step);
   main.querySelector('#flowStep').onchange=event=>{location.hash='flow/'+key+'/'+event.target.value;};
 }
 

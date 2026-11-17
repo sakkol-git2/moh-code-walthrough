@@ -3,8 +3,10 @@ from pathlib import Path
 import json, subprocess, hashlib, re
 site=Path(__file__).resolve().parent.parent
 source_root=site.parent/'TSC-MOH'
-s=(site/'reference-evidence.js').read_text()
-evidence=json.loads(s[s.index('{'):s.rindex('}')+1])
+evidence={}
+for filename in ['reference-evidence.js','study-evidence.js']:
+    s=(site/filename).read_text()
+    evidence.update(json.loads(s[s.index('{'):s.rindex('}')+1]))
 for key,item in evidence.items():
     source=subprocess.check_output(['git','-C',str(source_root/item['repo']),'show',item['rev']+':'+item['path']],text=True).splitlines()
     start=item['line']-1

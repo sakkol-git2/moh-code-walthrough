@@ -6,8 +6,8 @@ function sourceIndex(selected, coreOnly = false) {
   const detail=main.querySelector('#selectedSource');
   function show(key) {
     const s=evidence[key];
-    const checkout=s.repo==='MOH-Application'?'.worktrees/dr06-application':s.repo==='MOH-Profile'?'.worktrees/dr06-profile':s.repo;
-    detail.innerHTML='<div class="tag">'+s.repo+' · '+s.rev+'</div><h2>'+escapeHtml(s.path.split('/').pop())+'</h2><p>Open this file in the recorded checkout and go to line '+s.line+'. Revisions and paths can differ from another branch.</p><label class="field" for="sourcePath">Local file path</label><input id="sourcePath" class="source-search" readonly value="'+escapeHtml('/Users/apple/Documents/TSC-MOH/'+checkout+'/'+s.path)+'">'+sources([key]);
+    const checkout=s.repo;
+    detail.innerHTML='<div class="tag">'+s.repo+' · '+s.rev+'</div><h2>'+escapeHtml(s.path.split('/').pop())+'</h2><p>Inspect the file at the recorded revision and go to line '+s.line+'. Your working file may differ. Use git show with the recorded commit to read the exact source.</p><label class="field" for="sourcePath">Local file path</label><input id="sourcePath" class="source-search" readonly value="'+escapeHtml('/Users/apple/Documents/TSC-MOH/'+checkout+'/'+s.path)+'">'+sources([key]);
     detail.querySelector('details').open=true;
     detail.querySelector('#sourcePath').onfocus=event=>event.target.select();
     results.querySelectorAll('button').forEach(button=>button.setAttribute('aria-pressed',button.dataset.source===key));
