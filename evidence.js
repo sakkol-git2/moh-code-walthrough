@@ -1496,5 +1496,110 @@ const evidence = {
     "path": "src/main/java/kh/gov/esb/application/modules/health_supporting_product/mapper/ApplicationHealthSupportingProductDetailMapper.java",
     "line": 16,
     "code": "\n    // ── Per-application data ────────────────────────────────────────────\n    @Mapping(target = \"applicationId\", ignore = true)\n    @Mapping(target = \"application\", ignore = true)\n    ApplicationHealthSupportingDetail toDetail(HealthSupportingRequestDto dto);\n\n    @Mapping(target = \"applicationId\", ignore = true)\n    @Mapping(target = \"application\", ignore = true)\n    void updateDetail(HealthSupportingRequestDto dto, @MappingTarget ApplicationHealthSupportingDetail entity);\n\n    /** Products are attached by the caller from their own table. */\n    @Mapping(target = \"products\", ignore = true)\n    HealthSupportingRequestDto toDetailRequestDto(ApplicationHealthSupportingDetail entity);\n\n    @Mapping(target = \"products\", ignore = true)\n    HealthSupportingResponseDto toDetailResponseDto(ApplicationHealthSupportingDetail entity);\n\n    // ── Products ────────────────────────────────────────────────────────\n    @Mapping(target = \"id\", ignore = true)\n    @Mapping(target = \"application\", ignore = true)\n    ApplicationHealthSupportingProductDetail toEntity(HealthSupportingProductRequestDto dto);\n\n    HealthSupportingProductRequestDto toRequestDto(ApplicationHealthSupportingProductDetail entity);\n\n    HealthSupportingProductResponseDto toResponseDto(ApplicationHealthSupportingProductDetail entity);\n}\n"
+  },
+  "subDR06Save": {
+    "repo": "MOH-Application",
+    "rev": "3bd064ea",
+    "path": "src/main/java/kh/gov/esb/application/modules/application/service/ApplicationServiceImpl.java",
+    "line": 271,
+    "code": "    public Application saveApplication(Long applicationId, BaseApplicationRequestDto requestDto) throws BaseException {\n        String serviceCode = requestDto.getServiceCode();\n        Application application = null;\n        if (applicationId != null) {\n            application = getApplicationById(applicationId);\n            serviceCode = application.getServiceCode();\n        } else {\n            // A switched-off service can't be started. An existing draft may still be edited; submit checks again.\n            serviceAvailabilityGate.assertOpen(serviceCode);\n        }\n        ApplicationStrategy<? super BaseApplicationRequestDto> strategy = applicationStrategyFactory.getStrategy(serviceCode);\n        Application saved = strategy.saveApplication(applicationId, requestDto, application);\n        if (requestDto.getRelationApplicationId() != null) {\n            applicationRelationService.linkForDraft(saved, List.of(requestDto.getRelationApplicationId()));\n        }\n        if (applicationId == null) {\n            applicationEventPublisher.publishEvent(new ApplicationCreatedDomainEvent(saved));\n        }"
+  },
+  "subDR06Submit": {
+    "repo": "MOH-Application",
+    "rev": "3bd064ea",
+    "path": "src/main/java/kh/gov/esb/application/modules/application/service/ApplicationServiceImpl.java",
+    "line": 341,
+    "code": "    public SubmitApplicationResult submitApplication(Long applicationId, boolean forcePaymentFirst, Long facilityApplicationId, Long relationApplicationId, String trackingNo) throws BaseException {\n        Application application = getApplication(applicationId, authenticationFacade.getPublicUserId())\n                .orElseThrow(() -> new NotFoundException(\"application.not.found\"));\n\n        // Only a first submit is gated: returned or awaiting-payment applications are already in progress.\n        if (application.getStatus() == ApplicationStatus.DRAFT) {\n            serviceAvailabilityGate.assertOpen(application);\n        }\n\n        application.assignTrackingNo(resolveTrackingNo(application, trackingNo));\n\n        if (facilityApplicationId != null) {\n            application.setFacilityApplicationId(facilityApplicationId);\n        }\n\n        ApplicationStrategy strategy = applicationStrategyFactory.getStrategy(application.getServiceCode());\n\n        strategy.validateSubmitApplication(application);\n        // Configurable eligibility/window/prerequisite/reconciliation gate for RENEW/TRANSFER/UPDATE\n        // service codes — a no-op (defaults to pass) for services with no operation_rule_configs rows."
+  },
+  "subDR06Factory": {
+    "repo": "MOH-Application",
+    "rev": "3bd064ea",
+    "path": "src/main/java/kh/gov/esb/application/modules/application/strategy/application/ApplicationStrategyFactory.java",
+    "line": 32,
+    "code": "    public <T extends BaseApplicationRequestDto> ApplicationStrategy<T> getStrategy(String serviceCode) throws BaseException {\n        ApplicationStrategy<?> strategy = this.strategies.get(serviceCode);\n        if (strategy == null) {\n            throw new BaseException(\"Unsupported service type!\", HttpStatus.UNPROCESSABLE_ENTITY.value());\n        }\n        return (ApplicationStrategy<T>) strategy;\n    }\n"
+  },
+  "subDR06ProfileFactory": {
+    "repo": "MOH-Profile",
+    "rev": "c4dacbe",
+    "path": "src/main/java/kh/gov/esb/profile/modules/core/license/strategy/LicenseStrategyFactory.java",
+    "line": 54,
+    "code": "    public LicenseOperationStrategy getOperationStrategy(String serviceCode) throws BaseException {\n        LicenseOperationStrategy strategy = strategies.get(serviceCode.toUpperCase());\n        if (strategy == null) {\n            throw new BaseException(\"Unsupported service code: \" + serviceCode, HttpStatus.UNPROCESSABLE_ENTITY.value());\n        }\n        return strategy;\n    }\n"
+  },
+  "subDR06Consumer": {
+    "repo": "MOH-Profile",
+    "rev": "c4dacbe",
+    "path": "src/main/java/kh/gov/esb/profile/kafka/consumer/ProfileKafkaConsumer.java",
+    "line": 44,
+    "code": "    public void handleApplicationApproved(@Payload @Valid ApplicationApprovedMessage payload,\n                                          @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) throws Exception {\n        String serviceCode = payload.getService().getCode();\n        String messageId = String.valueOf(payload.getId());\n        String payloadJson = writeJson(payload);\n\n        LicenseOperationStrategy strategy;\n        try {\n            strategy = strategyFactory.getOperationStrategy(serviceCode);\n        } catch (BaseException e) {\n            log.warn(\"Unsupported service code: {}\", serviceCode);\n            return;\n        }\n\n        handleWithInbox(messageId, serviceCode + \"_APPROVED\", topic, payloadJson, null, () -> {\n            strategy.processApprovedMessage(payload);"
+  },
+  "subDR08Save": {
+    "repo": "MOH-Application",
+    "rev": "f89d2061",
+    "path": "src/main/java/kh/gov/esb/application/modules/application/service/ApplicationServiceImpl.java",
+    "line": 271,
+    "code": "    public Application saveApplication(Long applicationId, BaseApplicationRequestDto requestDto) throws BaseException {\n        String serviceCode = requestDto.getServiceCode();\n        Application application = null;\n        if (applicationId != null) {\n            application = getApplicationById(applicationId);\n            serviceCode = application.getServiceCode();\n        } else {\n            // A switched-off service can't be started. An existing draft may still be edited; submit checks again.\n            serviceAvailabilityGate.assertOpen(serviceCode);\n        }\n        ApplicationStrategy<? super BaseApplicationRequestDto> strategy = applicationStrategyFactory.getStrategy(serviceCode);\n        Application saved = strategy.saveApplication(applicationId, requestDto, application);\n        if (requestDto.getRelationApplicationId() != null) {\n            applicationRelationService.linkForDraft(saved, List.of(requestDto.getRelationApplicationId()));\n        }\n        if (applicationId == null) {\n            applicationEventPublisher.publishEvent(new ApplicationCreatedDomainEvent(saved));\n        }"
+  },
+  "subDR08Submit": {
+    "repo": "MOH-Application",
+    "rev": "f89d2061",
+    "path": "src/main/java/kh/gov/esb/application/modules/application/service/ApplicationServiceImpl.java",
+    "line": 341,
+    "code": "    public SubmitApplicationResult submitApplication(Long applicationId, boolean forcePaymentFirst, Long facilityApplicationId, Long relationApplicationId, String trackingNo) throws BaseException {\n        Application application = getApplication(applicationId, authenticationFacade.getPublicUserId())\n                .orElseThrow(() -> new NotFoundException(\"application.not.found\"));\n\n        // Only a first submit is gated: returned or awaiting-payment applications are already in progress.\n        if (application.getStatus() == ApplicationStatus.DRAFT) {\n            serviceAvailabilityGate.assertOpen(application);\n        }\n\n        application.assignTrackingNo(resolveTrackingNo(application, trackingNo));\n\n        if (facilityApplicationId != null) {\n            application.setFacilityApplicationId(facilityApplicationId);\n        }\n\n        ApplicationStrategy strategy = applicationStrategyFactory.getStrategy(application.getServiceCode());\n\n        strategy.validateSubmitApplication(application);\n        // Configurable eligibility/window/prerequisite/reconciliation gate for RENEW/TRANSFER/UPDATE\n        // service codes — a no-op (defaults to pass) for services with no operation_rule_configs rows."
+  },
+  "subDR08Factory": {
+    "repo": "MOH-Application",
+    "rev": "f89d2061",
+    "path": "src/main/java/kh/gov/esb/application/modules/application/strategy/application/ApplicationStrategyFactory.java",
+    "line": 32,
+    "code": "    public <T extends BaseApplicationRequestDto> ApplicationStrategy<T> getStrategy(String serviceCode) throws BaseException {\n        ApplicationStrategy<?> strategy = this.strategies.get(serviceCode);\n        if (strategy == null) {\n            throw new BaseException(\"Unsupported service type!\", HttpStatus.UNPROCESSABLE_ENTITY.value());\n        }\n        return (ApplicationStrategy<T>) strategy;\n    }\n"
+  },
+  "subDR08ProfileFactory": {
+    "repo": "MOH-Profile",
+    "rev": "a9caf9a",
+    "path": "src/main/java/kh/gov/esb/profile/modules/core/license/strategy/LicenseStrategyFactory.java",
+    "line": 54,
+    "code": "    public LicenseOperationStrategy getOperationStrategy(String serviceCode) throws BaseException {\n        LicenseOperationStrategy strategy = strategies.get(serviceCode.toUpperCase());\n        if (strategy == null) {\n            throw new BaseException(\"Unsupported service code: \" + serviceCode, HttpStatus.UNPROCESSABLE_ENTITY.value());\n        }\n        return strategy;\n    }\n"
+  },
+  "subDR08Consumer": {
+    "repo": "MOH-Profile",
+    "rev": "a9caf9a",
+    "path": "src/main/java/kh/gov/esb/profile/kafka/consumer/ProfileKafkaConsumer.java",
+    "line": 44,
+    "code": "    public void handleApplicationApproved(@Payload @Valid ApplicationApprovedMessage payload,\n                                          @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) throws Exception {\n        String serviceCode = payload.getService().getCode();\n        String messageId = String.valueOf(payload.getId());\n        String payloadJson = writeJson(payload);\n\n        LicenseOperationStrategy strategy;\n        try {\n            strategy = strategyFactory.getOperationStrategy(serviceCode);\n        } catch (BaseException e) {\n            log.warn(\"Unsupported service code: {}\", serviceCode);\n            return;\n        }\n\n        handleWithInbox(messageId, serviceCode + \"_APPROVED\", topic, payloadJson, null, () -> {\n            strategy.processApprovedMessage(payload);"
+  },
+  "subDR09Save": {
+    "repo": "MOH-Application",
+    "rev": "f89d2061",
+    "path": "src/main/java/kh/gov/esb/application/modules/application/service/ApplicationServiceImpl.java",
+    "line": 271,
+    "code": "    public Application saveApplication(Long applicationId, BaseApplicationRequestDto requestDto) throws BaseException {\n        String serviceCode = requestDto.getServiceCode();\n        Application application = null;\n        if (applicationId != null) {\n            application = getApplicationById(applicationId);\n            serviceCode = application.getServiceCode();\n        } else {\n            // A switched-off service can't be started. An existing draft may still be edited; submit checks again.\n            serviceAvailabilityGate.assertOpen(serviceCode);\n        }\n        ApplicationStrategy<? super BaseApplicationRequestDto> strategy = applicationStrategyFactory.getStrategy(serviceCode);\n        Application saved = strategy.saveApplication(applicationId, requestDto, application);\n        if (requestDto.getRelationApplicationId() != null) {\n            applicationRelationService.linkForDraft(saved, List.of(requestDto.getRelationApplicationId()));\n        }\n        if (applicationId == null) {\n            applicationEventPublisher.publishEvent(new ApplicationCreatedDomainEvent(saved));\n        }"
+  },
+  "subDR09Submit": {
+    "repo": "MOH-Application",
+    "rev": "f89d2061",
+    "path": "src/main/java/kh/gov/esb/application/modules/application/service/ApplicationServiceImpl.java",
+    "line": 341,
+    "code": "    public SubmitApplicationResult submitApplication(Long applicationId, boolean forcePaymentFirst, Long facilityApplicationId, Long relationApplicationId, String trackingNo) throws BaseException {\n        Application application = getApplication(applicationId, authenticationFacade.getPublicUserId())\n                .orElseThrow(() -> new NotFoundException(\"application.not.found\"));\n\n        // Only a first submit is gated: returned or awaiting-payment applications are already in progress.\n        if (application.getStatus() == ApplicationStatus.DRAFT) {\n            serviceAvailabilityGate.assertOpen(application);\n        }\n\n        application.assignTrackingNo(resolveTrackingNo(application, trackingNo));\n\n        if (facilityApplicationId != null) {\n            application.setFacilityApplicationId(facilityApplicationId);\n        }\n\n        ApplicationStrategy strategy = applicationStrategyFactory.getStrategy(application.getServiceCode());\n\n        strategy.validateSubmitApplication(application);\n        // Configurable eligibility/window/prerequisite/reconciliation gate for RENEW/TRANSFER/UPDATE\n        // service codes — a no-op (defaults to pass) for services with no operation_rule_configs rows."
+  },
+  "subDR09Factory": {
+    "repo": "MOH-Application",
+    "rev": "f89d2061",
+    "path": "src/main/java/kh/gov/esb/application/modules/application/strategy/application/ApplicationStrategyFactory.java",
+    "line": 32,
+    "code": "    public <T extends BaseApplicationRequestDto> ApplicationStrategy<T> getStrategy(String serviceCode) throws BaseException {\n        ApplicationStrategy<?> strategy = this.strategies.get(serviceCode);\n        if (strategy == null) {\n            throw new BaseException(\"Unsupported service type!\", HttpStatus.UNPROCESSABLE_ENTITY.value());\n        }\n        return (ApplicationStrategy<T>) strategy;\n    }\n"
+  },
+  "subDR09ProfileFactory": {
+    "repo": "MOH-Profile",
+    "rev": "a9caf9a",
+    "path": "src/main/java/kh/gov/esb/profile/modules/core/license/strategy/LicenseStrategyFactory.java",
+    "line": 54,
+    "code": "    public LicenseOperationStrategy getOperationStrategy(String serviceCode) throws BaseException {\n        LicenseOperationStrategy strategy = strategies.get(serviceCode.toUpperCase());\n        if (strategy == null) {\n            throw new BaseException(\"Unsupported service code: \" + serviceCode, HttpStatus.UNPROCESSABLE_ENTITY.value());\n        }\n        return strategy;\n    }\n"
+  },
+  "subDR09Consumer": {
+    "repo": "MOH-Profile",
+    "rev": "a9caf9a",
+    "path": "src/main/java/kh/gov/esb/profile/kafka/consumer/ProfileKafkaConsumer.java",
+    "line": 44,
+    "code": "    public void handleApplicationApproved(@Payload @Valid ApplicationApprovedMessage payload,\n                                          @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) throws Exception {\n        String serviceCode = payload.getService().getCode();\n        String messageId = String.valueOf(payload.getId());\n        String payloadJson = writeJson(payload);\n\n        LicenseOperationStrategy strategy;\n        try {\n            strategy = strategyFactory.getOperationStrategy(serviceCode);\n        } catch (BaseException e) {\n            log.warn(\"Unsupported service code: {}\", serviceCode);\n            return;\n        }\n\n        handleWithInbox(messageId, serviceCode + \"_APPROVED\", topic, payloadJson, null, () -> {\n            strategy.processApprovedMessage(payload);"
   }
 };

@@ -348,3 +348,13 @@ Use Explore lessons to reach all views.
 ## Maintenance
 index.html uses content hashes in asset URLs to avoid mixed cached versions during local editing. Refresh affected hashes whenever those files change.
 Keep changes confined to this learning project. Documentation stays local and out of MOH commits.
+
+
+## 2026-11-17 — Subservice core-flow checkpoints
+
+- All 20 DR06/DR08/DR09 subservices link from explorer, existing detailed lessons and lifecycle views to `#subservice-flow/<code>/<save|submit|approve>/<checkpoint>`.
+- Choose one of the three core-flow models: Save draft (5 checkpoints), Submit (5), or Approve application (4). Click exchanges or use previous/next controls.
+- Each view shows Java methods, existing fictional B rows, request/Kafka boundary data and a separate full-width source container. Missing strategies pause the sequence; the next checkpoint inspects surviving rows.
+- Save/submit failures do not manufacture approval messages. Profile approval is an independently injected hypothetical envelope; unsupported-code catch returns before domain processing. Submit explicitly assumes a pre-existing operation draft and does not claim a commit of pre-lookup in-memory changes.
+- Added 15 exact pinned Java excerpts from Application 3bd064ea/f89d2061 and Profile c4dacbe/a9caf9a. No live API/Kafka/database behavior was executed.
+- Browser verification: 60 service/flow terminal views, 20 explorer entries, flow selector, clickable failure checkpoint, expanded Java source and 390px layout (no document overflow).
