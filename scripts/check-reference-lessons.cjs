@@ -6,7 +6,7 @@ const {window}=parseHTML(html);const document=window.document;
 window.HTMLElement.prototype.scrollIntoView=function(){};window.HTMLElement.prototype.focus=function(){};
 Object.defineProperty(window.HTMLSelectElement.prototype,'value',{get(){const o=this.querySelector('option[selected]')||this.querySelector('option');return o?o.getAttribute('value')||o.textContent:'';},set(v){for(const o of this.querySelectorAll('option')){if((o.getAttribute('value')||o.textContent)===String(v))o.setAttribute('selected','');else o.removeAttribute('selected');}}});
 window.scrollTo=()=>{};const location={hash:'#services/DR06.01'};window.location=location;
-const context=vm.createContext({window,document,location,console,Map,Set,localStorage:{getItem(){return null;},setItem(){}},setTimeout,clearTimeout});
+const context=vm.createContext({window,document,location,console,Map,Set,structuredClone,localStorage:{getItem(){return null;},setItem(){}},setTimeout,clearTimeout});
 const run=code=>vm.runInContext(code,context);
 for(const match of html.matchAll(/<script defer src="([^"?]+)/g)){const filename=match[1];vm.runInContext(fs.readFileSync(path.join(root,filename),'utf8'),context,{filename});}
 const services=run('drServiceCatalog.filter(s=>s.code.includes(".")).map(s=>({code:s.code,name:s.name}))');
@@ -53,3 +53,36 @@ run(`{
 location.hash='#subservice-flow/DR09.07/approve/8/DR01';run('render()');
 let reference=document.querySelector('#subserviceReference');reference.value='target';reference.onchange({target:reference});assert.equal(location.hash,'subservice-flow/DR09.07/approve/0/target');
 console.log('Renewal scope, commit states, DR01 replacement/FKs and reference-switch navigation checks passed.');
+
+// ER diagrams: every local FK has a type badge and a bidirectional explanation.
+let erViews=0;
+for(const product of ['A','B']){
+ location.hash='#database/'+product;run('render()');
+ assert.equal(document.querySelectorAll('#er .fk-line').length,7);
+ assert.equal(document.querySelectorAll('#er .erd-cardinality-badge').length,7);
+ assert.equal(document.querySelectorAll('#er .erd-relationship-legend tbody tr').length,7);
+ assert.equal(document.querySelectorAll('#er .event-line .erd-cardinality-badge').length,0);
+ document.querySelector('#er [data-table="product"]').click();
+ assert(document.querySelector('#er tr[data-cardinality-ends="product app"]').classList.contains('selected'));
+ document.querySelector('#er [data-mode]').click();
+ assert.equal(document.querySelector('#er g[data-cardinality-ends="product app"]').style.visibility,'hidden');
+ erViews++;
+}
+for(const family of ['DR06','DR08','DR09']){
+ for(const scenario of ['success','validation','rollback']){
+  const count=run(`lifecycleGuideFrames('${family}','${family}','${scenario}').length`);
+  for(let i=0;i<count;i++){
+   location.hash=`#lifecycle-guide/${family}/${family}/${scenario}/${i}`;run('render()');
+   assert.equal(document.querySelectorAll('.guide-er .guide-fk').length,7);
+   assert.equal(document.querySelectorAll('.guide-er .erd-cardinality-badge').length,7);
+   assert.equal(document.querySelectorAll('.guide-er .erd-relationship-legend tbody tr').length,7);
+   document.querySelector('[data-guide-table="registration"]').onclick();
+   assert(document.querySelector('#guideERSelection').textContent.includes('One-to-one (1:1)'));
+   assert(document.querySelector('#guideERSelection').textContent.includes('Many-to-one (N:1)'));
+   erViews++;
+  }
+ }
+}
+// Badges must occupy the gaps between boxes, not overlap their 240 x 120 nodes.
+run(`{const model=guideERModel('DR06','DR06','success',0);for(const [from,to,path,x,y] of model.edges)for(const node of model.nodes){if(x+23>node.x&&x-23<node.x+240&&y+11>node.y&&y-11<node.y+120)throw Error('Cardinality badge overlaps '+node.id);}}`);
+console.log(`${erViews} database/guided ER views: FK labels, reverse relations, optional-row explanations, selection and badge geometry passed.`);

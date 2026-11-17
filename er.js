@@ -20,8 +20,9 @@ function renderER(product, id, registration, licence, origin, options = {}) {
     ['licence','cert','M470 488 V550','ISSUE event']
   ];
   const line=(a,b,path,event)=>'<path data-ends="'+a+' '+b+'" class="'+(event?'event-line':'fk-line')+'" d="'+path+'" marker-end="url(#'+(event?'event-tip':'fk-tip')+')"/>';
+  const cardinalityBadges=[['detail','app',305,91],['product','app',634,91],['registration','profile',305,335],['snapshot','registration',634,335],['snapshot','profile',600,391],['registration','licence',470,392],['licence','profile',185,454]].map(args=>erdRelationBadge(...args)).join('');
   const bands=[[0,146,'Application database'],[244,253,'Profile database'],[504,140,'Certificate database']];
-  const svg='<svg viewBox="0 0 940 645" preserveAspectRatio="none" aria-hidden="true"><defs>'+['fk','event'].map(t=>'<marker id="'+t+'-tip" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path fill="'+(t==='fk'?'#315c52':'#99471c')+'" d="M0 0 L10 5 L0 10z"/></marker>').join('')+'</defs>'+bands.map(([y,h,title])=>'<rect x="1" y="'+(y+1)+'" width="938" height="'+(h-2)+'" rx="12" fill="#f2f5e9" stroke="#c8d3c2"/><text x="24" y="'+(y+28)+'">'+title+'</text>').join('')+edges.map(e=>line(...e)).join('')+
+  const svg='<svg viewBox="0 0 940 645" preserveAspectRatio="none" aria-hidden="true"><defs>'+['fk','event'].map(t=>'<marker id="'+t+'-tip" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path fill="'+(t==='fk'?'#315c52':'#99471c')+'" d="M0 0 L10 5 L0 10z"/></marker>').join('')+'</defs>'+bands.map(([y,h,title])=>'<rect x="1" y="'+(y+1)+'" width="938" height="'+(h-2)+'" rx="12" fill="#f2f5e9" stroke="#c8d3c2"/><text x="24" y="'+(y+28)+'">'+title+'</text>').join('')+edges.map(e=>line(...e)).join('')+cardinalityBadges+
     '<text data-message="approval" class="event-label" x="650" y="184">Kafka · approval</text><text data-message="approval" x="500" y="208">Application 700 · Product '+product+' '+id+' · selected profile 42</text><text data-message="issue" class="event-label" x="485" y="537">Kafka · ISSUE · licence '+licence+' + profile 42</text></svg>';
   const nodes=tables.map(([key,x,y,name,row])=>'<button type="button" class="er-table" data-table="'+key+'" style="left:'+x/9.4+'%;top:'+y+'px" aria-pressed="'+(key==='product')+'"><strong>'+name+'</strong><span>'+row+'</span></button>').join('');
   const relationships = {
@@ -117,6 +118,7 @@ function renderER(product, id, registration, licence, origin, options = {}) {
         edge.classList.remove('dim');
         edge.classList.toggle('er-current-message',guided && message && frame.message===message);
       });
+      diagram.querySelectorAll('g[data-cardinality-ends]').forEach(badge=>{badge.style.visibility=guided&&!badge.dataset.cardinalityEnds.split(' ').every(key=>visible.has(key))?'hidden':'';});
       diagram.querySelectorAll('[data-message]').forEach(label=>{
         label.style.visibility=guided && !messages.has(label.dataset.message) ? 'hidden' : '';
       });
@@ -138,8 +140,9 @@ function renderER(product, id, registration, licence, origin, options = {}) {
       const key=button.dataset.table;
       diagram.querySelectorAll('[data-table]').forEach(node=>node.setAttribute('aria-pressed',node===button));
       diagram.querySelectorAll('[data-ends]').forEach(edge=>edge.classList.toggle('dim',!edge.dataset.ends.split(' ').includes(key)));
+      diagram.querySelectorAll('[data-cardinality-ends]').forEach(item=>item.classList.toggle('selected',item.dataset.cardinalityEnds.split(' ').includes(key)));
       diagram.querySelector('.er-note').innerHTML=inspect(key);
     });
   };
-  return {attach,html:'<section id="er" class="panel check"><h2>Product '+product+'’s table map</h2><p>Select a table to see when its row is created. Solid arrows point from a foreign key to its parent. Dashed arrows show IDs copied in a Kafka message. The labels list the IDs relevant to this trace.</p><button type="button" class="btn" data-mode>Start step-by-step mode</button><div class="er-guide" hidden><div class="er-frame" aria-live="polite"></div><div class="choices"><button type="button" data-back>← Previous step</button><button type="button" data-next>Next step →</button></div></div><div class="er-scroll" tabindex="0" aria-label="Scrollable relationship diagram"><div class="er-canvas">'+svg+nodes+'</div></div><div class="er-note" aria-live="polite">'+inspect('product')+'</div></section>'};
+  return {attach,html:'<section id="er" class="panel check"><h2>Product '+product+'’s table map</h2><p>Select a table to see when its row is created. Solid arrows point from a foreign key to its parent. Each solid connection has a 1:1 or N:1 badge; the table below spells out both directions. Dashed arrows show IDs copied in a Kafka message. The labels list the IDs relevant to this trace.</p><button type="button" class="btn" data-mode>Start step-by-step mode</button><div class="er-guide" hidden><div class="er-frame" aria-live="polite"></div><div class="choices"><button type="button" data-back>← Previous step</button><button type="button" data-next>Next step →</button></div></div><div class="er-scroll" tabindex="0" aria-label="Scrollable relationship diagram"><div class="er-canvas">'+svg+nodes+'</div></div>'+erdRelationshipLegend(Object.fromEntries(tables.map(t=>[t[0],t[3]])),edges)+'<div class="er-note" aria-live="polite">'+inspect('product')+'</div></section>'};
 }

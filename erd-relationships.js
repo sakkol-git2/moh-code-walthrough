@@ -1,0 +1,18 @@
+// Local relationship directions follow the FK owner (child) -> referenced parent.
+const erdRelationshipTypes={
+ 'detail app':{type:'One-to-one',ratio:'1:1',reverse:'One-to-one',fk:'application_id is both PK and FK',meaning:'One application can have zero or one shared detail. Each detail belongs to one application.'},
+ 'product app':{type:'Many-to-one',ratio:'N:1',reverse:'One-to-many',fk:'product.application_id → applications.id',meaning:'Many products can share an application. Each product belongs to one application; a draft may have zero products.'},
+ 'registration profile':{type:'Many-to-one',ratio:'N:1',reverse:'One-to-many',fk:'registration.profile_id → profiles.id',meaning:'One profile can have many registrations. The inspected registration profile_id is nullable, so the FK alone does not require a profile on every registration.'},
+ 'registration licence':{type:'One-to-one',ratio:'1:1',reverse:'One-to-one',fk:'registration.license_id is a required UNIQUE FK',meaning:'Each registration references one licence. The unique key permits at most one registration per licence; a licence may exist before its registration.'},
+ 'licence profile':{type:'Many-to-one',ratio:'N:1',reverse:'One-to-many',fk:'licenses.profile_id → profiles.id',meaning:'One profile can have many licences. Each licence requires one profile in the inspected schema.'},
+ 'snapshot registration':{type:'One-to-one',ratio:'1:1',reverse:'One-to-one',fk:'snapshot.registration_id is both PK and FK',meaning:'Each snapshot belongs to one registration. A registration can have zero or one row in this domain snapshot table.'},
+ 'snapshot profile':{type:'Many-to-one',ratio:'N:1',reverse:'One-to-many',fk:'snapshot.profile_id → profiles.id',meaning:'One profile can be referenced by many product snapshots. This is a separate FK from snapshot.registration_id.'}
+};
+function erdRelationBadge(from,to,x,y){
+ const r=erdRelationshipTypes[from+' '+to];if(!r)return '';
+ return '<g class="erd-cardinality-badge" data-cardinality-ends="'+from+' '+to+'"><title>'+r.type+' · '+from+' to '+to+'</title><rect x="'+(x-23)+'" y="'+(y-11)+'" width="46" height="22" rx="7"/><text x="'+x+'" y="'+(y+4)+'" text-anchor="middle">'+r.ratio+'</text></g>';
+}
+function erdRelationshipLegend(names,edges){
+ const local=edges.filter(([from,to])=>erdRelationshipTypes[from+' '+to]);
+ return '<section class="erd-relationship-legend"><h3>Read the relationship types</h3><div class="erd-type-key"><span><strong>1:1</strong> One-to-one</span><span><strong>1:N</strong> One-to-many</span><span><strong>N:1</strong> Many-to-one</span><span><strong>N:M</strong> Many-to-many</span></div><p>Read each arrow from the FK-owning child to its parent. Reversing a many-to-one relationship gives one-to-many. The labels describe the schema, even before example rows exist.</p><div class="rows"><table><thead><tr><th>Child → parent</th><th>Arrow direction</th><th>Parent → child</th><th>Key and allowed rows</th></tr></thead><tbody>'+local.map(([from,to])=>{const r=erdRelationshipTypes[from+' '+to];return '<tr data-cardinality-ends="'+from+' '+to+'"><th scope="row">'+names[from]+' → '+names[to]+'</th><td><strong>'+r.ratio+' · '+r.type+'</strong></td><td>'+(r.reverse==='One-to-many'?'1:N':'1:1')+' · '+r.reverse+'</td><td>'+r.fk+'<br>'+r.meaning+'</td></tr>';}).join('')+'</tbody></table></div><p class="src">No many-to-many relationship is shown in this diagram. A many-to-many model uses a junction table with two foreign keys. Kafka handoffs and cross-service ID references are message associations, not local FK relationships; they receive no FK cardinality badge.</p></section>';
+}
