@@ -4,8 +4,8 @@
 
 ## Start
 
-- [ ] Open the website. Click **Service explorer** in the top bar or **Explore lessons → Service explorer**.
-- [ ] Open `/Users/apple/Documents/TSC-MOH` in your editor. Match the Java revision shown in each lesson.
+- [x] Open the website. Click **Service explorer** in the top bar or **Explore lessons → Service explorer**.
+- [x] Open `/Users/apple/Documents/TSC-MOH` in your editor. Match the Java revision shown in each lesson.
 
 If you need to start the website:
 

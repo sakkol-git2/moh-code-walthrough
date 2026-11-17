@@ -11,10 +11,14 @@
             "id": "42dcc815f38ed944",
             "type": "leaf",
             "state": {
-              "type": "empty",
-              "state": {},
+              "type": "markdown",
+              "state": {
+                "file": "REVIEW-CHECKLIST.md",
+                "mode": "source",
+                "source": false
+              },
               "icon": "lucide-file",
-              "title": "New tab"
+              "title": "REVIEW-CHECKLIST"
             }
           }
         ]
@@ -95,6 +99,7 @@
             "state": {
               "type": "backlink",
               "state": {
+                "file": "REVIEW-CHECKLIST.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -113,6 +118,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
+                "file": "REVIEW-CHECKLIST.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
@@ -155,6 +161,7 @@
             "state": {
               "type": "outline",
               "state": {
+                "file": "REVIEW-CHECKLIST.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
@@ -183,9 +190,9 @@
   },
   "active": "42dcc815f38ed944",
   "lastOpenFiles": [
-    "REVIEW-DETAILED-WORKBOOK.md",
+    "CHECKPOINT.md",
     "REVIEW-CHECKLIST.md",
-    "REVIEW-18-HOURS-2026-11-17.md",
-    "CHECKPOINT.md"
+    "REVIEW-DETAILED-WORKBOOK.md",
+    "REVIEW-18-HOURS-2026-11-17.md"
   ]
 }

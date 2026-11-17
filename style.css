@@ -19,6 +19,7 @@ h1,h2,h3{overflow-wrap:anywhere}
 .relation-facts{display:grid;grid-template-columns:110px minmax(0,1fr);gap:8px 12px;font-size:14px;line-height:1.6}.relation-facts dt{font-weight:bold}.relation-facts dd{margin:0}.choices button:disabled{opacity:.55;cursor:default}
 @media(max-width:540px){.relation-facts{grid-template-columns:1fr;gap:4px}.relation-facts dd{margin-bottom:9px}}
 .implementation-notice{max-width:1132px;margin:15px auto 0;padding:12px 18px;border:1px solid #b89555;background:#fff2d6;border-radius:8px;color:#563d18;font-size:13px;line-height:1.6}.implementation-notice a{color:inherit;font-weight:bold}
+.implementation-panel{width:100%;max-width:100%;margin-top:22px}.implementation-panel>details{min-width:0}.implementation-panel pre{max-width:100%}
 @media(max-width:850px){.implementation-notice{margin:15px 20px 0}}
 .field select{max-width:calc(100% - 8px)}
 @media(max-width:540px){.field select{display:block;width:100%;max-width:100%;margin:8px 0 0}}
