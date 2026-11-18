@@ -65,6 +65,8 @@ function lesson(i){
   '<div class="lessonbody"><article class="panel"><div class="tag">Step '+(i+1)+' of 6 · '+label+'</div><h2>'+title+'</h2><p>'+description+'</p><div class="stepcontent">'+example(i)+'</div></article><aside class="side"><div class="tag">Source reader</div><h2>Inspect the code</h2><p>Expand a file to see the original lines, repository path and commit.</p>'+sources(keys)+'</aside></div><div class="actions"><a class="btn light" href="'+(i?'#lesson/'+(i-1):'#overview')+'">← '+(i?'Previous':'Overview')+'</a><a class="btn" href="'+(i===5?'#journey/0':'#lesson/'+(i+1))+'">'+(i===5?'Continue · Submit':'Next · '+steps[i+1][0])+' →</a></div>';
 }
 function render(){
+  const concise=/^#subservices(?:\/(DR(?:06|08|09)\.[0-9]{2})\/([0-9]{1,2}))?$/.exec(location.hash);
+  if(concise&&(!concise[1]||drServiceCatalog.some(s=>s.code===concise[1]))){const notice=document.querySelector('.implementation-notice');if(notice)notice.hidden=true;conciseSubservices(concise[1]||'DR09.03',Number(concise[2]||0));return;}
   const studyRoute=!location.hash||/^#(?:study|study-lab|deep|reference-db|architecture)(?:\/|$)/.test(location.hash);
   const notice=document.querySelector('.implementation-notice');
   if(notice)notice.hidden=studyRoute;

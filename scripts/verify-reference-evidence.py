@@ -4,7 +4,7 @@ import json, subprocess, hashlib, re
 site=Path(__file__).resolve().parent.parent
 source_root=site.parent/'TSC-MOH'
 evidence={}
-for filename in ['reference-evidence.js','study-evidence.js']:
+for filename in ['reference-evidence.js','study-evidence.js','dr09-current-evidence.js']:
     s=(site/filename).read_text()
     evidence.update(json.loads(s[s.index('{'):s.rindex('}')+1]))
 for key,item in evidence.items():

@@ -29,7 +29,7 @@ for(const service of services){for(const reference of ['DR07','DR01','target']){
  }
 }}}
 // Check reference selection persists in navigation and source references exist.
-for(const service of services){location.hash=`#subservice-flow/${service.code}/save/0`;run('render()');assert.equal(document.querySelector('#subserviceReference').value,service.name==='Renewal'?'DR07':'DR01');location.hash=`#services/${service.code}`;run('render()');assert.equal(document.querySelector('#serviceDetail h2 + a').getAttribute('href'),`#subservice-flow/${service.code}/save/0`);}
+for(const service of services){location.hash=`#subservice-flow/${service.code}/save/0`;run('render()');assert.equal(document.querySelector('#subserviceReference').value,service.name==='Renewal'?'DR07':'DR01');location.hash=`#services/${service.code}`;run('render()');assert.equal(document.querySelector('#serviceDetail h2 + a').getAttribute('href'),`#subservices/${service.code}/0`);}
 run(`for(const ref of ['DR07','DR01'])for(const flow of ['save','submit','approve'])for(const step of referenceFlowFrames(drServiceCatalog[1],flow,ref)){if(!step.failure||!step.stage)throw Error('Missing explanation');for(const key of step.refs)if(!evidence[key])throw Error('Missing evidence '+key);}`);
 // Preserve proposal state and refresh comparison chapters in the combined lesson.
 location.hash='#subservice-flow/DR08.03/save/1/DR01';run('render()');
@@ -173,3 +173,41 @@ for(const ref of ['DR07','DR01']){
  for(const badge of document.querySelectorAll('.reference-edge rect')){const x=Number(badge.getAttribute('x')),y=Number(badge.getAttribute('y')),w=Number(badge.getAttribute('width')),h=Number(badge.getAttribute('height'));for(const n of nodes)assert(!(x<n.x+100&&x+w>n.x-100&&y<n.y+80&&y+h>n.y),ref+' badge overlaps '+n.id);}
 }
 console.log('Reference ER badge/node geometry passed.');
+
+// Concise subservices: one journey, all three stages, current DR09 contracts and explicit boundaries.
+let conciseViews=0;
+for(const code of services.map(s=>s.code)){
+ const count=run(`currentDr09Operations['${code}']?currentDr09Steps(studyService('${code}'),currentDr09Operations['${code}']).length:summaryBoundarySteps(studyService('${code}')).length`);
+ for(let i=0;i<count;i++){
+  location.hash=`#subservices/${code}/${i}`;run('render()');
+  assert.equal(document.querySelector('#conciseService').value,code);
+  assert.equal(document.querySelectorAll('.concise-stages a').length,3);
+  assert.equal(document.querySelectorAll('.concise-stages [aria-current="step"]').length,1);
+  assert.equal(document.querySelector('#conciseCheckpoint').value,String(i));
+  assert(document.querySelector('#conciseDocuments').compareDocumentPosition(document.querySelector('#conciseCheckpointBody'))&4);
+  assert(document.querySelector('#conciseImplementation pre'));
+  assert(!document.querySelector('main').textContent.includes('undefined'),location.hash);
+  for(const a of document.querySelectorAll('.concise-stages a')){const idx=Number(a.getAttribute('href').split('/').at(-1));assert(idx>=0&&idx<count);}
+  conciseViews++;
+ }
+}
+run(`{
+ for(const [code,op] of Object.entries(currentDr09Operations)){
+  const steps=currentDr09Steps(studyService(code),op);if(steps.length!==9)throw Error(code+' must have 9 checkpoints');
+  for(const step of steps)for(const key of step.refs)if(!evidence[key])throw Error('Missing evidence '+key);
+  if(steps[5].data.envelope.service.code!==op.runtime)throw Error('Runtime dispatch wrong');
+  if(steps[8].data.certificate.license_ids.join()!=='2502')throw Error('Unselected A included');
+  if(op.option&&steps[4].data.service_code!==op.option)throw Error('Billing used runtime code instead of change option');
+ }
+ if(!currentDr09Operations['DR09.04'].effect.includes('pack_size'))throw Error('Packaging scope hidden');
+ if(!currentDr09Operations['DR09.07'].gap.includes('dedicated cancellation document'))throw Error('Cancellation template gap hidden');
+ if(!currentDr09Operations['DR09.01'].gap.includes('No Profile renewal strategy adapter'))throw Error('Renewal wiring caveat hidden');
+}`);
+location.hash='#subservices/DR09.03/7';run('render()');assert(document.querySelector('#conciseCheckpointBody').textContent.includes('Product B revised'));
+location.hash='#subservices/DR09.07/7';run('render()');assert(document.querySelector('#conciseCheckpointBody').textContent.includes('ACTIVE because A remains open'));
+location.hash='#subservices/DR09.02/0';run('render()');assert(document.querySelector('#conciseDocuments').textContent.includes('outside the new'));
+location.hash='#subservices/DR08.01/0';run('render()');assert(document.querySelector('a[href="#subservices/DR09.01/0"]'));
+location.hash='#subservices/DR09.04/0';run('render()');let conciseSelect=document.querySelector('#conciseCheckpoint');conciseSelect.value='8';conciseSelect.onchange({target:conciseSelect});assert.equal(location.hash,'#subservices/DR09.04/8');
+location.hash='#subservices/DR09.01/99';run('render()');assert.equal(document.querySelector('#conciseCheckpoint').value,'8');
+location.hash='#study/DR09.03';run('render()');assert(document.querySelector('a[href="#subservices/DR09.03/0"]'));assert(document.querySelector('main').textContent.includes('New DR09 feature source'));
+console.log(`${conciseViews} concise checkpoints across 20 subservices; stage navigation, current DR09 runtime/billing contracts, selected-target rows, replay/wiring/template limits and reference comparisons passed.`);

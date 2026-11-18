@@ -1,5 +1,6 @@
 // These are reading checkpoints sourced from the guide, not an instrumented runtime call stack.
 function studyFrames(scope,flow){
+ if(currentDr09Operations[scope])return currentDr09Steps(studyService(scope),currentDr09Operations[scope]).map((s,i)=>({...s,rows:s.rows.map(([name,before,after])=>[name,before+' → '+after]),back:'#subservices/'+scope+'/'+i})).filter(s=>flow==='save'?s.stage===0:flow==='submit'?s.stage===1:s.stage===2);
  if(scope==='DR06')return coreFlows[flow].steps.map((s,i)=>({...s,text:s.does,data:sequenceData(flow,i),rows:s.rows.map(x=>['Row / state',x]),back:'#flow/'+flow+'/'+i}));
  if(scope==='DR07'||scope==='DR01')return referenceFlowFrames(drServiceCatalog[1],flow,scope).map((s,i)=>({...s,rows:referenceLedger(flow,scope,referenceFlowFrames(drServiceCatalog[1],flow,scope),i),back:'#subservice-flow/DR06.01/'+flow+'/'+i+'/'+scope}));
  if(scope==='DR08'||scope==='DR09')return guideRegistrationFrames(scope).filter((s,i)=>flow==='save'?i<=2:flow==='submit'?i>=3&&i<=4:i>=5).map(s=>({...s,back:s.source}));
