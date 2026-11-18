@@ -6,8 +6,7 @@ const lifecycleFamilies={
 function lifecycleLesson(code){
  const family=code.split('.')[0];
  if(!code.includes('.'))return lifecycleFamilies[family].main;
- const fixed={'DR06.01':'#dr06-renewal/0','DR06.02':'#dr06-output/fsc/0','DR06.03':'#dr06-change/holder/0','DR06.04':'#dr06-change/manufacturer/0','DR06.05':'#dr06-output/cancel/0','DR08.01':'#dr08-renewal/0','DR08.03':'#dr08-change/name/0','DR08.04':'#dr08-change/packaging/0','DR08.05':'#dr08-party/holder/0','DR08.06':'#dr08-party/manufacturer/0','DR08.07':'#dr08-change/dosage/0'};
- return fixed[code]||'#service-lesson/'+code+'/0';
+ return '#subservices/'+code+'/0';
 }
 function lifecycleGroup(service){
  if(!service.code.includes('.'))return 'Registration';

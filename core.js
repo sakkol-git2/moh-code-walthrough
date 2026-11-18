@@ -1,15 +1,9 @@
 function coreHome(){
   const lessons=[
     ["Start here · your study desk","Choose one service, follow eight study topics and keep your review notes in one place.","#study/DR06"],
-    ["Product B lifecycle map","Connect registration, renewal, changes, FSC and cancellation across all three families.","#lifecycle/DR06/DR06/0"],
-    ["DR08 dosage form and appearance change","Inspect DR07 dosage provenance, proposed values, surviving rows and unresolved appearance scope.","#dr08-change/dosage/0"],
-    ["DR08 holder and manufacturer changes","Compare name/address proposals, DR07 provenance and rows surviving unsupported-code handling.","#dr08-party/holder/0"],
-    ["DR08 product name and packaging changes","Inspect DR07 field provenance, proposed changes, surviving rows and missing amendment strategies.","#dr08-change/name/0"],
-    ["DR08 renewal","Compare DR08/DR06 renewal wiring, existing rows and the shared renewable check.","#dr08-renewal/0"],
+    ["Product B lifecycle map","Compare main registrations and follow subservice operations through DR09.","#lifecycle/DR09/DR09/0"],
     ["DR09 main registration","Follow health supplement products and compare requests, attachments, Kafka and rows across DR06/08/09.","#dr09-main/0"],
     ["DR08 main registration","Follow traditional medicine products and compare Application/Profile behaviour with DR06.","#dr08-main/0"],
-    ["Reagent Free Sale Certificate and cancellation","Inspect output requirements, surviving rows and whole-profile termination scope.","#dr06-output/fsc/0"],
-    ["Holder and manufacturer changes","Compare existing rows, proposed values and DR06 amendment implementation gaps.","#dr06-change/holder/0"],
     ["DR service explorer","Explore main services, subservices, master data and source coverage.","#services/DR06"],
     ["Kafka approval retries and duplicates","Follow rollback, redelivery, committed results and the source-ID guard.","#approval-retry/rollback/0"],
     ["Follow Product B across the core flows","Connect Java, Kafka data and rows, compare rollback and practise debugging.","#b-lesson/journey/0"],
@@ -30,6 +24,7 @@ function coreHome(){
     ['Shared Java entry point','Follow the DTO subtype and strategy lookup for GDHT-RG-L.','#java-route/0'],
     ['Core source search','Search only Application and Profile excerpts.','#core-sources']
   ];
+  lessons.unshift(['DR09 subservice core flows','Save, submit and approve with synchronized ER, row and source checkpoints.','#subservices/DR09.03/0']);
   main.innerHTML='<div class="tag">DR06 / Application + Profile</div><h1>Understand the core handoff</h1><p class="lead">Start with a saved draft. Follow its stable product IDs into approval data, then into a registration and the product read API.</p><div class="mini handoff"><span class="chip">Application · product 802</span><span>→</span><span class="chip accent">Approval contract</span><span>→</span><span class="chip">Profile · registration 902</span></div><ol class="learning-path">'+lessons.map(([name,goal,url])=>'<li class="panel"><div><h2><a href="'+url+'">'+name+'</a></h2><p>'+goal+'</p></div></li>').join('')+'</ol>';
 }
 const draftCases = {

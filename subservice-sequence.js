@@ -59,7 +59,6 @@ function addSubserviceSequenceEntry(code){
   button.textContent='Start concise journey · documents + checkpoints →';
   button.classList.add('subservice-lesson-start');
   detail.querySelector('h2').insertAdjacentElement('afterend',button);
-  if(currentDr09Operations[code]){const note=detail.querySelector('p.src')?.nextElementSibling;if(note)note.textContent='New DR09 implementation inspected: '+currentDr09Operations[code].effect+' See the concise journey for current source and wiring limits.';}
   return;
  }
  const lead=main.querySelector('.lead');
